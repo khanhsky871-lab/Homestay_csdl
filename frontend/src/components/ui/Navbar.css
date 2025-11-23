@@ -1,0 +1,55 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.1);
+  /* top: 0; z-index: 1000; (Bạn có thể giữ nếu muốn navbar dính trên đầu) */
+}
+
+.logo a {
+  text-decoration: none;
+  padding-left: 40px;
+  color: #333;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  align-items: center; /* 1. QUAN TRỌNG: Căn giữa dọc các mục menu và avatar */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding-right: 50px;
+}
+
+.nav-links a:hover {
+  color: #008080;
+}
+
+/* --- 2. THÊM PHẦN NÀY CHO AVATAR --- */
+.navbar-avatar {
+  display: flex;              /* Flexbox để căn chữ nằm giữa hình tròn */
+  justify-content: center;
+  align-items: center;
+  width: 40px;                /* Chiều rộng */
+  height: 40px;               /* Chiều cao bằng chiều rộng để tròn */
+  background-color: #008080;  /* Màu nền (lấy theo màu hover của bạn) */
+  color: #fff !important;     /* Chữ màu trắng, dùng !important để đè màu #333 ở trên */
+  border-radius: 50%;         /* Bo tròn */
+  padding-right: 0 !important;/* Bỏ padding-right 50px mặc định của thẻ a */
+  margin-right: 50px;         /* Thay thế bằng margin để giữ khoảng cách lề phải */
+  font-weight: bold;
+}
+
+.navbar-avatar:hover {
+  opacity: 0.9;               /* Hiệu ứng mờ nhẹ khi di chuột */
+  color: #fff !important;     /* Đảm bảo chữ vẫn trắng khi hover */
+}
