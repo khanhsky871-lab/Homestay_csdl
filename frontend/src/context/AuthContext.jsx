@@ -1,152 +1,138 @@
 // src/context/AuthContext.js
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import axiosClient from '../api/axiosClient'; // 1. Import file vừa tạo
 
-// Tạo Context
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // 1. GIẢ LẬP ĐĂNG NHẬP: Gán luôn thông tin user để test
-  const [user, setUser] = useState({ 
-    id: 999,
-    username: "testuser", 
-    name: "Khách hàng Test", 
-    role: "CUSTOMER",
-    email: "test@example.com"
-  });
-  
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 2. GIẢ LẬP API (Mock API Object)
-  // Object này thay thế cho axios để trả về dữ liệu giả mà không cần Backend
-  const api = {
-    // Giả lập POST (Dùng cho Đăng nhập, Đăng ký, Đặt phòng)
-    post: async (url, payload) => {
-      console.log(`[MOCK API] POST đến: ${url}`);
-      console.log(`[MOCK API] Payload:`, payload);
-
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            data: {
-              success: true,
-              message: "Mock API: Thao tác thành công!",
-              // Trả về lại dữ liệu đã gửi kèm ID ngẫu nhiên
-              data: { ...payload, id: Math.floor(Math.random() * 10000) } 
-            }
-          });
-        }, 800); // Delay 0.8s giả lập mạng
-      });
-    },
-    
-    // Giả lập GET (Dùng cho lấy danh sách phòng, lịch sử, hóa đơn)
-    get: async (url) => {
-       console.log(`[MOCK API] GET: ${url}`);
-       
-       return new Promise((resolve) => {
-         setTimeout(() => {
-            // --- MOCK DATA CHO TRANG CÁ NHÂN ---
-            
-            // 1. Dữ liệu Lịch sử đặt phòng
-            if (url === '/reservations') {
-              resolve({
-                data: {
-                  success: true,
-                  data: {
-                    // Giả lập cấu trúc phân trang của Swagger (content)
-                    content: [
-                      {
-                        id: 101,
-                        roomName: "Deluxe Ocean View",
-                        checkInDate: "2024-05-01T14:00:00",
-                        checkOutDate: "2024-05-03T12:00:00",
-                        total: 240,
-                        status: "Confirmed"
-                      },
-                      {
-                        id: 102,
-                        roomName: "Standard King Room",
-                        checkInDate: "2024-06-10T14:00:00",
-                        checkOutDate: "2024-06-11T12:00:00",
-                        total: 80,
-                        status: "Cancelled"
-                      },
-                      {
-                        id: 103,
-                        roomName: "Family Suite",
-                        checkInDate: "2024-07-20T14:00:00",
-                        checkOutDate: "2024-07-25T12:00:00",
-                        total: 1000,
-                        status: "Pending"
-                      }
-                    ]
-                  }
-                }
-              });
-            } 
-            // 2. Dữ liệu Hóa đơn
-            else if (url === '/bills') {
-              resolve({
-                data: {
-                  success: true,
-                  data: [
-                    {
-                      id: 501,
-                      reservationId: 101,
-                      createdAt: "2024-05-03T10:00:00",
-                      total: 240
-                    },
-                    {
-                      id: 502,
-                      reservationId: 105,
-                      createdAt: "2024-08-15T09:30:00",
-                      total: 150
-                    }
-                  ]
-                }
-              });
-            }
-            // 3. Dữ liệu Danh sách phòng (Trang chủ)
-            else if (url.includes('/rooms')) {
-               // Nếu HomePage gọi API lấy phòng, trả về success để không lỗi
-               // (HomePage hiện đang dùng biến rooms cứng nên cái này chỉ dự phòng)
-               resolve({ data: { success: true, data: { content: [] } } });
-            }
-            // Mặc định trả về rỗng
-            else {
-              resolve({ data: { success: true, data: [] } });
-            }
-         }, 500); 
-       });
-    },
-
-    // Mock interceptors để code cũ không bị crash
-    interceptors: {
-        request: { use: () => {} },
-        response: { use: () => {} }
+  // Hàm giải mã JWT
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
     }
   };
 
-  // --- CÁC HÀM AUTH GIẢ ---
+  // 2. Cấu hình tự động Logout khi token hết hạn (401) tại đây
+  useEffect(() => {
+    const interceptor = axiosClient.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // Chỉ logout nếu không phải đang ở trang login/register
+          if (!window.location.pathname.includes('/auth')) {
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    
+    // Cleanup interceptor khi unmount
+    return () => axiosClient.interceptors.response.eject(interceptor);
+  }, []);
+
+  // Kiểm tra token khi load lại trang
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = parseJwt(token);
+      if (decoded && decoded.exp * 1000 > Date.now()) {
+        setUser({
+          username: decoded.sub || decoded.username,
+          name: decoded.name || decoded.sub || "User",
+          role: decoded.roles || []
+        });
+      } else {
+        logout();
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  // --- ĐĂNG NHẬP ---
   const login = async (username, password) => {
-    console.log("Fake Login:", username);
-    // Khi login thật thì set user có tên
-    setUser({ 
-        id: 123, 
-        username: username, 
-        name: username === 'admin' ? 'Administrator' : 'Khách hàng Demo', 
-        role: "CUSTOMER",
-        email: `${username}@gmail.com`
-    });
-    return { success: true };
+    try {
+      const payload = {
+        username,
+        password,
+        platform: "WEB",
+        deviceToken: "browser",
+        versionApp: "1.0.0"
+      };
+
+      // Sử dụng axiosClient thay vì api.post cũ
+      const res = await axiosClient.post('/auth/access-token', payload);
+
+      if (res.data && res.data.accessToken) {
+        const token = res.data.accessToken;
+        localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', res.data.refreshToken);
+
+        const decoded = parseJwt(token);
+        setUser({
+          username: username,
+          name: username,
+          role: decoded ? decoded.roles : []
+        });
+
+        return { success: true };
+      }
+      return { success: false, message: 'Không nhận được access token.' };
+    } catch (err) {
+      console.error("Login error:", err);
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Đăng nhập thất bại.'
+      };
+    }
   };
 
+  // --- ĐĂNG KÝ ---
   const register = async (name, email, password, username) => {
-    console.log("Fake Register:", { name, email, username });
-    return { success: true, message: "Đăng ký thành công (Mock)" };
+    try {
+      const payload = {
+        name,
+        email,
+        password,
+        username,
+        phone: "0000000000",
+        identityCard: "000000000",
+        gender: "Other",
+        city: "Unknown",
+        country: "Vietnam",
+        address: "Unknown",
+        roleId: 2 // Khách hàng
+      };
+
+      await axiosClient.post('/users', payload);
+      return { success: true, message: 'Đăng ký thành công! Vui lòng đăng nhập.' };
+    } catch (err) {
+      console.error("Register error:", err);
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Đăng ký thất bại.'
+      };
+    }
   };
 
+  // --- ĐĂNG XUẤT ---
   const logout = () => {
-    console.log("Logout called");
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
   };
 
@@ -159,7 +145,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         isAuthenticated: !!user,
-        api // Export api giả để dùng ở các trang
+        api: axiosClient // Export axiosClient để các file khác (Home, Profile) dùng chung
       }}
     >
       {children}

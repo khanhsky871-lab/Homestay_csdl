@@ -7,50 +7,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./HomeSlider.css";
 
-// Dữ liệu phòng giả lập (Ảnh chất lượng cao)
-const rooms = [
-  {
-    id: 1,
-    name: "Deluxe Ocean View",
-    price: 120,
-    status: "Available",
-    description: "Phòng đôi sang trọng với tầm nhìn hướng biển tuyệt đẹp, đầy đủ tiện nghi.",
-    img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop"
-  },
-  {
-    id: 2,
-    name: "Standard King Room",
-    price: 80,
-    status: "Occupied",
-    description: "Phòng tiêu chuẩn giường lớn, không gian ấm cúng, phù hợp cho cặp đôi.",
-    img: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=800&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    name: "Family Suite",
-    price: 200,
-    status: "Available",
-    description: "Căn hộ rộng rãi cho gia đình 4 người, có bếp riêng và phòng khách.",
-    img: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=800&auto=format&fit=crop"
-  },
-  {
-    id: 4,
-    name: "Single Budget",
-    price: 45,
-    status: "Cleaning",
-    description: "Phòng đơn tiết kiệm, sạch sẽ, phù hợp cho khách đi công tác.",
-    img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=800&auto=format&fit=crop"
-  },
-  {
-    id: 5,
-    name: "Luxury Penthouse",
-    price: 350,
-    status: "Maintenance",
-    description: "Căn hộ cao cấp nhất với hồ bơi riêng và dịch vụ quản gia 24/7.",
-    img: "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop"
-  }
-];
-
 // Component mũi tên tùy chỉnh
 const PreArrow = ({ onClick }) => (
   <div className="arrow arrow-prev" onClick={onClick}>❮</div>
@@ -60,14 +16,18 @@ const NextArrow = ({ onClick }) => (
 );
 
 const HomeSlider = () => {
-  const { user, api } = useContext(AuthContext); // Lấy thông tin user và api
-  const navigate = useNavigate(); // Hook chuyển trang
+  const { user, api } = useContext(AuthContext);
+  const navigate = useNavigate();
 
+  // State quản lý dữ liệu từ API
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // State cho Modal và Booking
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isBookingMode, setIsBookingMode] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // State form đặt phòng
   const [bookingData, setBookingData] = useState({
     checkInDate: "",
     checkOutDate: "",
@@ -75,10 +35,32 @@ const HomeSlider = () => {
     paymentMethod: "Cash"
   });
 
+  // --- 1. GỌI API LẤY DANH SÁCH PHÒNG ---
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        // Gọi API lấy 10 phòng mới nhất
+        // Backend trả về dạng PageRoomResponse, dữ liệu nằm trong .content
+        const res = await api.get('/rooms?page=0&size=10&sortDirection=DESC');
+        
+        // Kiểm tra cấu trúc trả về của API (dựa trên Swagger)
+        // Có thể là res.data.content hoặc res.data.data.content tùy wrapper
+        const roomList = res.data?.data?.content || res.data?.content || [];
+        setRooms(roomList);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách phòng:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, [api]);
+
   // Settings Slider
   const settings = {
     dots: false,
-    infinite: true,
+    infinite: rooms.length > 3, // Chỉ infinite nếu có nhiều hơn 3 phòng
     speed: 600,
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -92,7 +74,7 @@ const HomeSlider = () => {
     ]
   };
 
-  // Tự động tính tiền khi đổi ngày
+  // Tự động tính tiền (Frontend tính để hiển thị, Backend sẽ tính lại khi lưu)
   useEffect(() => {
     if (selectedRoom && bookingData.checkInDate && bookingData.checkOutDate) {
       const start = new Date(bookingData.checkInDate);
@@ -108,7 +90,6 @@ const HomeSlider = () => {
     }
   }, [bookingData.checkInDate, bookingData.checkOutDate, selectedRoom]);
 
-  // Xử lý khi click vào phòng
   const handleRoomClick = (room) => {
     setSelectedRoom(room);
     setIsBookingMode(false);
@@ -120,7 +101,6 @@ const HomeSlider = () => {
     setSelectedRoom(null);
   };
 
-  // Logic chuyển sang form đặt phòng (Kiểm tra Login)
   const handleSwitchToBooking = () => {
     if (!user) {
       const confirmLogin = window.confirm(
@@ -135,12 +115,11 @@ const HomeSlider = () => {
     setIsBookingMode(true);
   };
 
-  // Xử lý thay đổi input
   const handleChange = (e) => {
     setBookingData({ ...bookingData, [e.target.name]: e.target.value });
   };
 
-  // Xử lý Submit đặt phòng
+  // --- 2. GỌI API ĐẶT PHÒNG ---
   const handleSubmitBooking = async (e) => {
     e.preventDefault();
 
@@ -155,10 +134,11 @@ const HomeSlider = () => {
     }
 
     try {
+      // Payload chuẩn theo Swagger (ReservationCreationRequest)
       const payload = {
         roomId: selectedRoom.id,
-        checkInDate: `${bookingData.checkInDate}T14:00:00`,
-        checkOutDate: `${bookingData.checkOutDate}T12:00:00`,
+        checkInDate: `${bookingData.checkInDate}T14:00:00`, // Thêm giờ mặc định check-in
+        checkOutDate: `${bookingData.checkOutDate}T12:00:00`, // Thêm giờ mặc định check-out
         numGuests: parseInt(bookingData.numGuests),
         paymentMethod: bookingData.paymentMethod
       };
@@ -166,35 +146,58 @@ const HomeSlider = () => {
       const res = await api.post("/reservations", payload);
 
       if (res.data.success) {
-        alert("Đặt phòng thành công! Vui lòng kiểm tra lịch sử trong trang cá nhân.");
+        alert("Đặt phòng thành công! Đang chuyển hướng đến trang cá nhân...");
         closeModal();
+        navigate("/profile"); // Chuyển hướng để xem lịch sử
       } else {
-        alert("Đặt phòng thất bại: " + (res.data.message || "Lỗi không xác định"));
+        alert("Đặt phòng thất bại: " + (res.data.message || "Lỗi server"));
       }
     } catch (error) {
       console.error(error);
-      alert("Có lỗi xảy ra khi kết nối đến server.");
+      const errorMsg = error.response?.data?.message || "Có lỗi xảy ra khi kết nối server";
+      alert("Lỗi: " + errorMsg);
     }
   };
+
+  // Helper để lấy ảnh hiển thị (Ưu tiên ảnh từ API, nếu không có thì dùng ảnh mẫu)
+  const getRoomImage = (room) => {
+    if (room.images && room.images.length > 0) {
+      return room.images[0];
+    }
+    // Ảnh placeholder nếu phòng chưa có ảnh
+    return "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop";
+  };
+
+  if (isLoading) {
+    return <div className="slider-container" style={{textAlign:'center', padding: '50px'}}>Loading rooms...</div>;
+  }
 
   return (
     <div className="slider-wrapper">
       <div className="slider-container">
-        <h2 className="section-title">Khám phá các phòng nổi bật</h2>
-        <Slider {...settings}>
-          {rooms.map((room) => (
-            <div key={room.id} className="slider-item" onClick={() => handleRoomClick(room)}>
-              <div className="slick-slide-content room-card">
-                <img src={room.img} alt={room.name} className="slider-image" />
-                <span className={`status-badge ${room.status.toLowerCase()}`}>
-                  {room.status}
-                </span>
-                <h3 className="slider-title">{room.name}</h3>
-                <p className="slider-price">${room.price} / đêm</p>
+        
+        {rooms.length > 0 ? (
+          <Slider {...settings}>
+            {rooms.map((room) => (
+              <div key={room.id} className="slider-item" onClick={() => handleRoomClick(room)}>
+                <div className="slick-slide-content room-card">
+                  <img 
+                    src={getRoomImage(room)} 
+                    alt={room.name} 
+                    className="slider-image" 
+                  />
+                  <span className={`status-badge ${room.status ? room.status.toLowerCase() : 'unknown'}`}>
+                    {room.status || 'Unknown'}
+                  </span>
+                  <h3 className="slider-title">{room.name}</h3>
+                  <p className="slider-price">${room.price} / đêm</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </Slider>
+            ))}
+          </Slider>
+        ) : (
+          <p style={{textAlign: 'center', color: '#666'}}>Hiện chưa có phòng nào được hiển thị.</p>
+        )}
       </div>
 
       {/* --- MODAL --- */}
@@ -206,7 +209,7 @@ const HomeSlider = () => {
             <div className="modal-body">
               {/* CỘT ẢNH */}
               <div className="modal-image-col">
-                <img src={selectedRoom.img} alt={selectedRoom.name} />
+                <img src={getRoomImage(selectedRoom)} alt={selectedRoom.name} />
               </div>
 
               {/* CỘT THÔNG TIN */}
@@ -217,9 +220,15 @@ const HomeSlider = () => {
                     <h2>{selectedRoom.name}</h2>
                     <p className="modal-price">Giá: <span>${selectedRoom.price}</span> / đêm</p>
                     <div className="modal-status">
-                      Trạng thái: <span className={`status-text ${selectedRoom.status.toLowerCase()}`}>{selectedRoom.status}</span>
+                      Trạng thái: <span className={`status-text ${selectedRoom.status ? selectedRoom.status.toLowerCase() : ''}`}>
+                        {selectedRoom.status}
+                      </span>
                     </div>
-                    <p className="modal-desc">{selectedRoom.description}</p>
+                    <p className="modal-desc">
+                      {selectedRoom.description || "Chưa có mô tả cho phòng này."}
+                    </p>
+                    <p><strong>Sức chứa:</strong> {selectedRoom.capacity} người</p>
+                    <p><strong>Diện tích:</strong> {selectedRoom.area} m²</p>
                     
                     {selectedRoom.status === "Available" ? (
                       <button className="book-now-btn" onClick={handleSwitchToBooking}>
@@ -272,6 +281,7 @@ const HomeSlider = () => {
                           type="number" 
                           name="numGuests" 
                           min="1" 
+                          max={selectedRoom.capacity} // Giới hạn theo sức chứa phòng
                           value={bookingData.numGuests} 
                           onChange={handleChange} 
                         />
@@ -287,7 +297,7 @@ const HomeSlider = () => {
                     </div>
 
                     <div className="total-price-section">
-                      <span>Tổng cộng:</span>
+                      <span>Tạm tính:</span>
                       <span className="price-value">${totalPrice > 0 ? totalPrice : 0}</span>
                     </div>
 
