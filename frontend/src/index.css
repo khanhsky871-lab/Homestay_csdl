@@ -1,90 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
-@layer base {
-  :root {
-    --background: 220 18% 12%;
-    --foreground: 210 20% 98%;
-
-    --card: 220 16% 16%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 220 16% 16%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 350 90% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 45 95% 58%;
-    --secondary-foreground: 220 18% 12%;
-
-    --muted: 220 14% 22%;
-    --muted-foreground: 210 10% 65%;
-
-    --accent: 350 90% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 14% 24%;
-    --input: 220 14% 24%;
-    --ring: 350 90% 60%;
-
-    --radius: 0.75rem;
-
-    --cinema-gold: 45 95% 58%;
-    --cinema-burgundy: 350 90% 60%;
-    --cinema-dark: 220 18% 12%;
-    --cinema-card: 220 16% 16%;
-  }
-
-  .dark {
-    --background: 220 18% 12%;
-    --foreground: 210 20% 98%;
-
-    --card: 220 16% 16%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 220 16% 16%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 350 90% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 45 95% 58%;
-    --secondary-foreground: 220 18% 12%;
-
-    --muted: 220 14% 22%;
-    --muted-foreground: 210 10% 65%;
-
-    --accent: 350 90% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 14% 24%;
-    --input: 220 14% 24%;
-    --ring: 350 90% 60%;
-  }
-}
-.calendar-white::-webkit-calendar-picker-indicator {
-  filter: invert(1); /* Đảo màu -> icon trắng */
-  cursor: pointer;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
