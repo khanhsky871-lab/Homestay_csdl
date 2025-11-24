@@ -1,41 +1,6 @@
 // src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:8080',
-});
-
-// Interceptor: tự động thêm Token vào Header
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-
-const parseJwt = (token) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      window
-        .atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-};
-
+import axiosClient from '../api/axiosClient'; // 1. Import file vừa tạo
 
 export const AuthContext = createContext();
 
@@ -43,12 +8,48 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Hàm giải mã JWT
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
 
+  // 2. Cấu hình tự động Logout khi token hết hạn (401) tại đây
+  useEffect(() => {
+    const interceptor = axiosClient.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // Chỉ logout nếu không phải đang ở trang login/register
+          if (!window.location.pathname.includes('/auth')) {
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    
+    // Cleanup interceptor khi unmount
+    return () => axiosClient.interceptors.response.eject(interceptor);
+  }, []);
+
+  // Kiểm tra token khi load lại trang
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = parseJwt(token);
-
       if (decoded && decoded.exp * 1000 > Date.now()) {
         setUser({
           username: decoded.sub || decoded.username,
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-
+  // --- ĐĂNG NHẬP ---
   const login = async (username, password) => {
     try {
       const payload = {
@@ -73,25 +74,24 @@ export const AuthProvider = ({ children }) => {
         versionApp: "1.0.0"
       };
 
-      const res = await api.post('/auth/access-token', payload);
+      // Sử dụng axiosClient thay vì api.post cũ
+      const res = await axiosClient.post('/auth/access-token', payload);
 
-      if (res.data?.accessToken) {
+      if (res.data && res.data.accessToken) {
         const token = res.data.accessToken;
         localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', res.data.refreshToken);
 
         const decoded = parseJwt(token);
-
         setUser({
-          username: decoded.sub || decoded.username,
-          name: decoded.name || decoded.sub || username,
-          role: decoded.roles || []
+          username: username,
+          name: username,
+          role: decoded ? decoded.roles : []
         });
 
         return { success: true };
       }
-
       return { success: false, message: 'Không nhận được access token.' };
-
     } catch (err) {
       console.error("Login error:", err);
       return {
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
+  // --- ĐĂNG KÝ ---
   const register = async (name, email, password, username) => {
     try {
       const payload = {
@@ -109,19 +109,17 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
         username,
-        phone: "",
-        identityCard: "",
+        phone: "0000000000",
+        identityCard: "000000000",
         gender: "Other",
-        city: "",
+        city: "Unknown",
         country: "Vietnam",
-        address: "",
-        roleId: 2 // Giả sử 2 là Customer
+        address: "Unknown",
+        roleId: 2 // Khách hàng
       };
 
-      await api.post('/users', payload);
-
-      return { success: true, message: 'Đăng ký thành công! Hãy đăng nhập.' };
-
+      await axiosClient.post('/users', payload);
+      return { success: true, message: 'Đăng ký thành công! Vui lòng đăng nhập.' };
     } catch (err) {
       console.error("Register error:", err);
       return {
@@ -131,11 +129,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // =============================
-  // LOGOUT
-  // =============================
+  // --- ĐĂNG XUẤT ---
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
   };
 
@@ -148,7 +145,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         isAuthenticated: !!user,
-        api
+        api: axiosClient // Export axiosClient để các file khác (Home, Profile) dùng chung
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 import React from "react";
 import "./Home.css";
-import HomeSlider from './HomeSlide';
+import HomeSlider from './HomeSlider';
 
 const Home = () => {
   return (
