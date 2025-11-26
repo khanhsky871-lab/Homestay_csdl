@@ -1,0 +1,402 @@
+/* src/pages/ProfilePage.css */
+
+.profile-container {
+  min-height: 100vh;
+  background-color: #f4f6f8;
+  padding: 40px 20px; /* Tăng padding trên dưới chút cho thoáng */
+}
+
+/* Ẩn nav cũ nếu bạn đã dùng Navbar chung, giữ lại để căn lề nếu cần */
+.profile-top-nav {
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+}
+
+.home-link {
+  text-decoration: none;
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.home-link:hover {
+  color: #008080;
+}
+
+/* --- LAYOUT 2 CỘT (QUAN TRỌNG) --- */
+.profile-layout {
+  display: flex;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Giúp 2 cột luôn cao bằng nhau */
+  align-items: stretch; 
+}
+
+/* --- SIDEBAR --- */
+.profile-sidebar {
+  flex: 1;
+  max-width: 280px;
+  background: white;
+  border-radius: 16px; /* Bo tròn mềm mại hơn */
+  padding: 30px 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  text-align: center;
+  
+  /* Flex để đẩy nút đăng xuất xuống đáy */
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-circle {
+  width: 90px;
+  height: 90px;
+  background-color: #008080;
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  box-shadow: 0 4px 10px rgba(0, 128, 128, 0.3);
+}
+
+.profile-header h3 {
+  margin: 10px 0 5px;
+  color: #333;
+  font-size: 20px;
+}
+
+.user-role {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  padding: 20px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-box small { 
+  color: #999; 
+  font-size: 12px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px;
+}
+
+.stat-box strong { 
+  font-size: 18px; 
+  color: #333; 
+  margin-top: 5px; 
+}
+
+/* Menu bên trái */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Chiếm hết khoảng trống còn lại */
+}
+
+.sidebar-menu button {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #555;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sidebar-menu button:hover {
+  background-color: #f4fafa;
+  color: #008080;
+  transform: translateX(5px); /* Hiệu ứng trượt nhẹ */
+}
+
+.sidebar-menu button.active {
+  background-color: #e6fffa;
+  color: #008080;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0, 128, 128, 0.1);
+}
+
+/* Nút đăng xuất */
+.logout-btn-menu {
+  margin-top: auto; /* Đẩy xuống đáy cùng */
+  color: #d32f2f !important;
+  border-top: 1px solid #f0f0f0 !important;
+  border-radius: 0 0 10px 10px !important;
+  padding-top: 20px !important;
+}
+
+.logout-btn-menu:hover {
+  background-color: #fff1f0 !important;
+  color: #b71c1c !important;
+  transform: none !important;
+}
+
+/* --- MAIN CONTENT --- */
+.profile-main-content {
+  flex: 3;
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  /* Không set height cứng để nó tự stretch theo sidebar nếu sidebar dài hơn */
+}
+
+.profile-main-content h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+  border-bottom: 3px solid #008080;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+
+/* --- INFO TAB --- */
+.detail-item {
+  display: flex;
+  padding: 18px 0;
+  border-bottom: 1px solid #f5f5f5;
+  align-items: center;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item label {
+  width: 180px;
+  font-weight: 600;
+  color: #777;
+  font-size: 15px;
+}
+
+.detail-item span {
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* --- TABLES --- */
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Đảm bảo không bị vỡ trên mobile */
+}
+
+.data-table th, .data-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  background-color: #f9fafb;
+  color: #555;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.data-table tbody tr:hover {
+  background-color: #fcfcfc;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.price-text {
+  color: #008080;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* --- BADGES (Trạng thái) --- */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+/* Màu sắc trạng thái */
+.status-badge.active, 
+.status-badge.confirmed, 
+.status-badge.paid,
+.status-badge.checked_in,
+.status-badge.checked_out {
+  background-color: #e6fffa;
+  color: #008080;
+}
+
+.status-badge.pending, 
+.status-badge.unpaid,
+.status-badge.cleaning {
+  background-color: #fff7e6;
+  color: #d46b08;
+}
+
+.status-badge.cancelled, 
+.status-badge.refunded,
+.status-badge.occupied {
+  background-color: #fff1f0;
+  color: #cf1322;
+}
+
+/* --- TRẠNG THÁI TRỐNG & LOADING --- */
+.empty-state {
+  text-align: center;
+  padding: 50px 0;
+  color: #888;
+  font-style: italic;
+  background-color: #fbfbfb;
+  border-radius: 8px;
+  border: 2px dashed #eee;
+}
+
+.loading-screen {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #008080;
+  font-weight: 500;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
+  .profile-layout {
+    flex-direction: column;
+    align-items: center; /* Khi dọc thì căn giữa */
+  }
+  
+  .profile-sidebar {
+    max-width: 100%;
+    width: 100%;
+    /* Khi mobile thì không cần stretch chiều cao nữa */
+    height: auto; 
+  }
+
+  .profile-main-content {
+    width: 100%;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .detail-item label {
+    width: 100%;
+  }
+  /* --- MODAL GỌI DỊCH VỤ (Dán vào cuối file ProfilePage.css) --- */
+.service-modal-overlay {
+  position: fixed; /* Bắt buộc để nổi lên trên */
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Màu nền tối mờ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Số lớn để đè lên mọi thứ */
+}
+
+.service-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: slideDown 0.3s ease;
+  z-index: 10000;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.service-modal h3 {
+  margin-top: 0;
+  color: #008080;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+/* Style cho Form bên trong Modal */
+.modal-form-group {
+  margin-bottom: 15px;
+}
+.modal-form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+.modal-form-group select, 
+.modal-form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Nút bấm trong Modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-cancel {
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-confirm {
+  background: #008080;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+}

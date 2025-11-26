@@ -1,0 +1,59 @@
+
+.admin-container { display: flex; min-height: 100vh; font-family: Arial, sans-serif; background-color: #f4f6f7; }
+.sidebar { width: 250px;flex-shrink: 0; background-color: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column; }
+.sidebar h2 { text-align: center; margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid #34495e; }
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar ul li { padding: 15px; cursor: pointer; transition: 0.3s; border-radius: 5px; margin-bottom: 5px; }
+.sidebar ul li:hover, .sidebar ul li.active { background-color: #34495e; font-weight: bold; border-left: 4px solid #2E8B57; }
+.main-content { flex: 1; padding: 30px; }
+
+/* Style cho Bảng */
+.admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 20px; }
+.admin-table th { background-color: #2E8B57; color: white; padding: 15px; text-align: left; }
+.admin-table td { padding: 15px; border-bottom: 1px solid #eee; color: #333; }
+.admin-table tr:hover { background-color: #f9f9f9; }
+.empty-text { text-align: center; padding: 30px; color: #777; font-style: italic; }
+
+/* Nút thêm phòng */
+.btn-add { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+.btn-add:hover { background-color: #2980b9; }
+
+/* Form thêm phòng */
+.add-room-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; animation: slideDown 0.3s; }
+.form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+.add-room-form input, .add-room-form textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+.btn-submit { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+
+/* Badges */
+.badge-admin { background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+.badge-user { background: #3498db; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+.status-badge.pending { color: orange; }
+.status-badge.confirmed { color: green; }
+.status-badge.cancelled { color: red; }
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+.add-room-form select {
+    /* Quan trọng: Buộc trình duyệt sử dụng giao diện dropdown gốc */
+    -webkit-appearance: menulist-button; 
+    -moz-appearance: menulist-button;
+    appearance: menulist-button;
+    
+    /* Đảm bảo select box không bị xử lý như một flex item đơn giản */
+    display: block !important; 
+    height: auto !important;
+}
+
+.add-room-form select option {
+    /* Đảm bảo các tùy chọn không bị flexbox phá vỡ */
+    display: block !important;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }

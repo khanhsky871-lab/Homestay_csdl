@@ -1,0 +1,113 @@
+/* Reset cơ bản để tránh lề thừa */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Căn giữa toàn màn hình */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Căn giữa dọc */
+  align-items: center;     /* Căn giữa ngang */
+  min-height: 100vh;       /* Chiều cao full màn hình */
+  background-color: #f0f2f5; /* Màu nền xám nhẹ dịu mắt */
+  padding: 20px;           
+}
+
+/* Logo Myhomestay */
+.auth-container h1 {
+  margin-bottom: 20px;
+}
+
+.logo-link {
+  text-decoration: none;
+  color: #2E8B57;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+
+.auth-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+  width: 100%;
+  max-width: 450px; 
+  text-align: center;
+}
+
+.auth-card h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+/* Form inputs */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; 
+}
+
+.auth-input, select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Bo tròn góc input */
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  background-color: #fff;
+}
+
+
+.auth-input:focus, select:focus {
+  outline: none;
+  border-color: #2E8B57;
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.2);
+}
+
+
+.auth-button {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: #2E8B57;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-button:hover {
+  background-color: #257a4a; 
+}
+
+
+.auth-toggle {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.auth-toggle span {
+  color: #2E8B57;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.auth-toggle span:hover {
+  text-decoration: underline;
+}
+
+
+select {
+  appearance: none; 
+  cursor: pointer;
+}

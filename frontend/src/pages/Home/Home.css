@@ -1,0 +1,45 @@
+.home {
+  width: 100%;
+  padding: 0 100px;
+  box-sizing: border-box;
+}
+
+/* Hero background */
+.hero {
+  height: 350px;
+  width: 100%;
+  background-image: url("/static/home-back.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-overlay {
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.447);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-overlay h1 {
+  color: white;
+  font-family:'Cormorant Garamond',serif;
+  font-size: 48px;
+  font-weight: 600;
+  margin-bottom: 40px;
+}
+
+/* Slider section */
+.slider-section {
+  margin: 40px auto;
+  width: 95%;
+}
+
+.slider-section h2 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}

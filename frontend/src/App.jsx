@@ -1,77 +1,52 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Navbar from "./components/ui/Navbar";
+import Home from "./pages/Home/Home";
+import AuthPage from "./pages/AuthPage";
+import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from "./pages/AdminDashboard"; 
+import { AuthProvider } from "./context/AuthContext";
+import Footer  from "./components/ui/Footer";
+import EmployeeDashboard from './pages/EmployeeDashboard';
 
-// ===== COMPONENT BẢO VỆ =====
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import AdminRoutes from "./pages/AdminRoutes.jsx";
+// Component dùng useLocation để điều khiển Navbar
+function AppContent() {
+  const location = useLocation(); 
 
-// ===== TRANG NGƯỜI DÙNG =====
-import MoviesPage from "./pages/MoviesPage.jsx";
-import Auth from "./pages/Auth.jsx";
-import MovieDetail from "./pages/MovieDetail.jsx";
-import Booking from "./pages/Booking.jsx";
-import Account from "./pages/Account.jsx";
-import NotFound from "./pages/NotFound.jsx";
+  // 👇 2. Logic: Ẩn Navbar/Footer nếu đang ở trang "/auth" HOẶC trang bắt đầu bằng "/admin"
+  const isHiddenPage = location.pathname === "/auth" || location.pathname.startsWith("/admin");
 
-// ===== TRANG ADMIN =====
-import { AdminLayout, AdminDashboard } from "./pages/Admin.jsx";
-import MovieManagement from "./pages/admin/MovieManagement.jsx";
-import TicketManagement from "./pages/admin/TicketManagement.jsx";
-import SeatManagement from "./pages/admin/SeatManagement.jsx";
-import ShowtimeManagement from "./pages/admin/ShowtimeManagement.jsx";
-import StaffManagement from "./pages/admin/StaffManagement.jsx";
-import OrderManagement from "./pages/admin/OrderManagement.jsx";
-import TransactionManagement from "./pages/admin/TransactionManagement.jsx";
-import AdminLogin from "./pages/admin/AdminLogin.jsx";
-
-const queryClient = new QueryClient();
-
-const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* 🌐 ROUTE CÔNG KHAI */}
-            <Route path="/" element={<MoviesPage />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/movie/:id" element={<MovieDetail />} />
+    <>
+      {/* Chỉ hiển thị Navbar khi KHÔNG PHẢI trang ẩn */}
+      {!isHiddenPage && <Navbar />}
 
-            {/* 🔒 ROUTE USER CẦN ĐĂNG NHẬP */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/booking/:showtimeId" element={<Booking />} />
-              <Route path="/account" element={<Account />} />
-            </Route>
+      <div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          
+          {/* 👇 3. THÊM ĐƯỜNG DẪN CHO ADMIN */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+        </Routes>
+      </div>
 
-            {/* 🧩 ROUTE ADMIN */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route element={<AdminRoutes />}>
-              <Route path="/admin" element={<AdminLayout />}>
-                {/* ✅ Dashboard mặc định */}
-                <Route index element={<AdminDashboard />} />
-                {/* ✅ Các trang quản trị khác */}
-                <Route path="movies" element={<MovieManagement />} />
-                <Route path="tickets" element={<TicketManagement />} />
-                <Route path="seats" element={<SeatManagement />} />
-                <Route path="showtimes" element={<ShowtimeManagement />} />
-                <Route path="staff" element={<StaffManagement />} />
-                <Route path="orders" element={<OrderManagement />} />
-                <Route path="transactions" element={<TransactionManagement />} />
-              </Route>
-            </Route>
-
-            {/* 🚫 ROUTE KHÔNG TỒN TẠI */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+      {/* Chỉ hiển thị Footer khi KHÔNG PHẢI trang ẩn */}
+      {!isHiddenPage && <Footer />}
+    </>
   );
-};
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+}
 
 export default App;

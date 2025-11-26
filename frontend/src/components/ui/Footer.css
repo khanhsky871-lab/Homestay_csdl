@@ -1,0 +1,128 @@
+.footer {
+  background-color: #f3f3f5; /* Màu nền tối sang trọng */
+  padding: 70px 0 0; /* Padding trên */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+  color: #3c79d5; /* Chữ màu trắng */
+  margin-top: 50px; /* Cách phần Slider bên trên ra một chút */
+}
+
+.footer-container {
+  max-width: 1170px;
+  margin: auto;
+  padding: 0 15px;
+}
+
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.footer-col {
+  width: 25%; /* Chia đều 4 cột */
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.footer-col h4 {
+  font-size: 18px;
+  color: #000000;
+  text-transform: uppercase;
+  margin-bottom: 35px;
+  font-weight: 500;
+  position: relative;
+}
+
+/* Tạo dấu gạch dưới tiêu đề cho đẹp */
+.footer-col h4::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  background-color: #312449; /* Màu điểm nhấn (hồng đậm/đỏ) */
+  height: 2px;
+  box-sizing: border-box;
+  width: 50px;
+}
+
+.footer-col p {
+  font-size: 14px;
+  color: #3e83ad;
+  margin-bottom: 10px;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-col ul li:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.footer-col ul li a {
+  font-size: 14px;
+  text-transform: capitalize;
+  text-decoration: none;
+  font-weight: 300;
+  color: #3e83ad;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng hover vào link */
+.footer-col ul li a:hover {
+  color: #06314c;
+  padding-left: 2px; /* Dịch chuyển chữ sang phải một chút */
+}
+
+.social-links a {
+  display: inline-block;
+  height: 40px;
+  width: fit-content;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-right: 10px;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%; /* Nếu muốn tròn thì để 50%, nếu muốn vuông bo góc thì để 4px */
+  padding: 0 10px;
+  color: #ffffff;
+  transition: all 0.5s ease;
+  font-size: 13px;
+  text-decoration: none;
+  margin-top: 20px;
+}
+
+.social-links a:hover {
+  color: #24262b;
+  background-color: #ffffff;
+}
+
+/* Phần bản quyền dưới cùng */
+.footer-bottom {
+  background-color: #1a1c20;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: 50px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 14px;
+  color: #bbbbbb;
+}
+
+/* Responsive cho Mobile (màn hình nhỏ) */
+@media (max-width: 767px) {
+  .footer-col {
+    width: 50%; /* Màn hình vừa: 2 cột */
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 574px) {
+  .footer-col {
+    width: 100%; /* Màn hình điện thoại: 1 cột */
+  }
+}
