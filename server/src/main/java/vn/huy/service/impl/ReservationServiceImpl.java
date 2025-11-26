@@ -308,7 +308,6 @@ public class ReservationServiceImpl implements ReservationService {
             item.setUnitPrice(service.getUnitPrice());
         }
         
-        // --- SỬA LỖI: TÍNH TỔNG TIỀN DỊCH VỤ ---
         BigDecimal totalServicePrice = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
         item.setTotalPrice(totalServicePrice); 
         // ---------------------------------------

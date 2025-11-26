@@ -199,7 +199,37 @@ const AdminDashboard = () => {
             alert("Lỗi: " + (error.response?.data?.message || error.message));
         }
     };
+const handleExportExcel = async () => {
+        try {
+            // Gọi API Backend (đường dẫn phải khớp với Controller bạn viết)
+            const response = await axios.get(
+                `${API_BASE_URL}/admin/statistics/export`, 
+                { 
+                    ...getAuthConfig(), // Kèm Token xác thực
+                    responseType: 'blob' // QUAN TRỌNG: Báo cho axios biết đây là file
+                }
+            );
 
+            // Tạo một url giả từ dữ liệu blob nhận được
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Đặt tên file khi tải về
+            link.setAttribute('download', `Bao_Cao_Doanh_Thu_${new Date().toISOString().slice(0,10)}.xlsx`);
+            
+            // Kích hoạt click để tải
+            document.body.appendChild(link);
+            link.click();
+            
+            // Dọn dẹp
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Lỗi xuất Excel:", error);
+            alert("Không thể xuất báo cáo. Vui lòng kiểm tra lại Server!");
+        }
+    };
     const handleDeleteSchedule = async (id) => {
         if(window.confirm("Bạn có chắc muốn xóa lịch làm việc này?")) {
             try {
@@ -483,6 +513,8 @@ const AdminDashboard = () => {
 
     const renderStats = () => {
         const paidBookings = bookings.filter(b => b.paymentStatus === 'Paid');
+        
+        // Logic tính toán doanh thu theo tháng
         const revenueByMonth = paidBookings.reduce((acc, curr) => {
             const date = new Date(curr.checkInDate);
             const monthKey = `${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -491,18 +523,64 @@ const AdminDashboard = () => {
             acc[monthKey].count += 1;
             return acc;
         }, {});
+        
         const totalRevenueAllTime = paidBookings.reduce((acc, curr) => acc + curr.total, 0);
 
         return (
             <div>
-                <div style={{marginBottom: '20px'}}>
-                    <h3>Báo cáo doanh thu</h3>
-                    <div style={{background: 'linear-gradient(135deg, #008080 0%, #00b3b3 100%)', color: 'white', padding: '20px', borderRadius: '10px', display: 'inline-block', minWidth: '250px', boxShadow: '0 4px 15px rgba(0, 128, 128, 0.3)'}}>
-                        <div style={{fontSize: '14px', opacity: 0.9}}>Tổng doanh thu thực tế</div>
-                        <div style={{fontSize: '28px', fontWeight: 'bold', marginTop: '5px'}}>{formatCurrency(totalRevenueAllTime)}</div>
-                        <div style={{fontSize: '12px', marginTop: '5px'}}>Trên tổng số {paidBookings.length} đơn hàng thành công</div>
+                {/* --- PHẦN HEADER CÓ NÚT XUẤT EXCEL --- */}
+                <div style={{
+                    marginBottom: '20px', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center'
+                }}>
+                    {/* Bên trái: Tiêu đề và ô tổng tiền */}
+                    <div>
+                        <h3>Báo cáo doanh thu</h3>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #008080 0%, #00b3b3 100%)', 
+                            color: 'white', 
+                            padding: '20px', 
+                            borderRadius: '10px', 
+                            display: 'inline-block', 
+                            minWidth: '250px', 
+                            boxShadow: '0 4px 15px rgba(0, 128, 128, 0.3)'
+                        }}>
+                            <div style={{fontSize: '14px', opacity: 0.9}}>Tổng doanh thu thực tế</div>
+                            <div style={{fontSize: '28px', fontWeight: 'bold', marginTop: '5px'}}>
+                                {formatCurrency(totalRevenueAllTime)}
+                            </div>
+                            <div style={{fontSize: '12px', marginTop: '5px'}}>
+                                Trên tổng số {paidBookings.length} đơn hàng thành công
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Bên phải: NÚT XUẤT EXCEL (ĐÃ THÊM MỚI) */}
+                    <button 
+                        onClick={handleExportExcel}
+                        style={{
+                            backgroundColor: '#217346', // Màu xanh Excel
+                            color: 'white', 
+                            border: 'none', 
+                            padding: '12px 24px', 
+                            borderRadius: '5px', 
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '15px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        {/* Icon Excel đơn giản bằng text hoặc bạn có thể dùng FontAwesome */}
+                        <span style={{fontSize: '18px'}}>📊</span> Xuất Excel
+                    </button>
                 </div>
+
+                {/* --- PHẦN BẢNG DỮ LIỆU (GIỮ NGUYÊN) --- */}
                 <div className="table-responsive">
                     <table className="admin-table">
                         <thead><tr><th>Tháng / Năm</th><th>Số lượng đơn</th><th>Doanh thu tháng</th></tr></thead>
@@ -512,17 +590,24 @@ const AdminDashboard = () => {
                                     <tr key={month}>
                                         <td style={{fontWeight: 'bold', color: '#555'}}>Tháng {month}</td>
                                         <td>{revenueByMonth[month].count} đơn</td>
-                                        <td style={{color: '#d35400', fontWeight: 'bold', fontSize: '16px'}}>{formatCurrency(revenueByMonth[month].total)}</td>
+                                        <td style={{color: '#d35400', fontWeight: 'bold', fontSize: '16px'}}>
+                                            {formatCurrency(revenueByMonth[month].total)}
+                                        </td>
                                     </tr>
                                 ))
-                            ) : (<tr><td colSpan="3" className="empty-text" style={{textAlign: 'center', padding: '30px'}}>Chưa có dữ liệu thanh toán nào.</td></tr>)}
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="empty-text" style={{textAlign: 'center', padding: '30px'}}>
+                                        Chưa có dữ liệu thanh toán nào.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
         );
     };
-
     const renderServices = () => (
         <div>
             <button className="btn-add" onClick={() => setShowAddService(!showAddService)}>{showAddService ? 'Đóng' : '+ Thêm Dịch vụ mới'}</button>

@@ -29,7 +29,6 @@ public class Reservation {
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    // employee field removed: employee assignment moved out of reservation model
 
     @Column(name = "booking_date", nullable = false)
     private LocalDateTime bookingDate;

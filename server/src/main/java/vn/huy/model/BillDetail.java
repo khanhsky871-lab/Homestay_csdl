@@ -33,7 +33,12 @@ public class BillDetail {
     private BigDecimal price;
 
     public void setReservation(Reservation reservation) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setReservation'");
+        if (reservation != null) {
+            this.reservationId = reservation.getId();
+        } else {
+            this.reservationId = null;
+        }
     }
+
+
 }
